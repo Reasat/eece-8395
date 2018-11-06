@@ -14,8 +14,8 @@ img(15:35,15:35) = 1;
 % Since we will use to define probability of belonging to S, we don’t want fully hard constraints
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
-figure(1); close(1); figure(1); colormap(gray(256));
-image(255*img);
+% figure(1); close(1); figure(1); colormap(gray(256));
+% image(255*img);
 % Parameters in our Graph Cut
 sigma = 0.2;
 lambda = 0.1;
@@ -25,9 +25,8 @@ Tree(r*c+1)=1; % s
 Tree(r*c+2)=2; % t
 % The first r*c entries in Tree will contain our final segmentation – 1 for s and 2 for t
 Parent = zeros(r*c+2,1);
-
 Active = zeros(r*c+2,1);
-nodes = [1:r*c]';
+nodes = (1:r*c)';
 X = mod(nodes-1,r)+1;
 Y = floor((nodes-1)/r)+1;
 Edges = [X<r,X>1,Y<c,Y>1].*[nodes+1, nodes-1, nodes+r, nodes-r];
@@ -61,69 +60,32 @@ Parent(msk)=r*c+1;
 Parent(~msk)=r*c+2;
 % Finally add all the active nodes to the FIFO
 FIFOInit(10*r*c);
-FIFOInsert(nodes);
+for i=1:length(nodes)
+    FIFOInsert(nodes(i));
+end
 % And perform the min-cut:
 while (1)
     P = Grow();
+    
     if isempty(P)
         break;
     end
-    Augment(P);
-    Adoption();
-end
-figure(2); close(2); figure(2); colormap(gray(256));
-image(reshape(Tree(1:r*c)*255/2,[r,c]));
-% OK but that was easy, what if we have some noise?
-noise = 0.4;
-img = zeros(r,c);
-img(15:35,15:35) = 1;
-rng('default');
-img = img +noise*randn(r,c);
-img(img(:)<0.01)=0.01;
-img(img(:)>.99)=.99;
-
-% The noisy result is not so perfect. Let’s wrap all this in a function so we can look at sigma,
-% lambda, and noise
-function testGraphCut(sigma,lambda,noise)
-figure(1);
-image(255*img);
-drawnow;
-figure(2);
-image(reshape(Tree(1:r*c)*255/2,[r,c]));
-drawnow;
-for sigma = 0.05:.1:2
-    testGraphCut(sigma,.1,.4);
+    %     Augment(P);
+    % find bottleneck capacity
+    bot_cap=1e6;
+    for i_node=2:length(P)
+        node1=P(i_node-1);
+        node2=P(i_node);
+        % is node2 left, right, up or down
+        neibs=Edges(node1);
+        cap=EdgeCaps(node1,neibs==node2);
+        if length(cap)>1 % dubious condition, stems from the fact that Edges have dubious duplicate neibs
+            cap=cap(1);
+        end
+        if bot_cap>cap
+            bot_cap=cap;
+        end
+    end
+    %     Adoption();
     
-    title(['sigma=',num2str(sigma)])
 end
-for lambda = 0:5
-    testGraphCut(.8,.5^lambda,.4);
-    title(['lambda=',num2str(.5^lambda)])
-end
-for noise = 0.25:0.025:1
-    testGraphCut(.8,.125,noise);
-end
-% % Let’s look at performance with graph size:
-% function testGraphCut(sigma,lambda,noise,rin,cin)
-% % We’ll quadruple the size of the graph by doubling r & c:
-% s=50;
-% for i=1:4
-%  tic
-%  testGraphCut(.8,0.125,.4,s,s);
-%  tms(i) = toc;
-%  s = 2*s;
-% end
-% tms
-% tms(2:4)./tms(1:3)
-%
-% % 0.6928 2.3374 8.9446 35.6555
-% % 3.3739 3.8267 3.9862
-% % Computation time grows almost linearly with the size of the graph.
-% % We can also try another kind of n-link cost not based on image gradients. What if we just want to
-% % limit the total number of edges in the cut?
-% for lambda = 0:5
-%  testGraphCut(inf,.5^lambda,.4,50,50);
-% title(['lambda=',num2str(.5^lambda)])
-% end
-% % We can see that at .5^5, the segmentation is total background, no foreground because the cost of
-% % the n-links has gotten too large relative to the t-links.
