@@ -7,10 +7,16 @@ close all
 clc
 % Initialize all of our helper Hash Tables:
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
-r=50;
-c=50;
+% r=50;
+% c=50;
+% img = zeros(r,c);
+% img(15:35,15:35) = 1;
+
+r=10;
+c=10;
 img = zeros(r,c);
-img(15:35,15:35) = 1;
+img(5:7,5:7) = 1;
+
 % Since we will use to define probability of belonging to S, we don’t want fully hard constraints
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
@@ -72,38 +78,37 @@ while (1)
         neibs=[Edges(p) r*c+1 r*c+2];
         %         check if left, right, down, up exists (necessary?)
         for i = 1:length(neibs)
-            if neibs(i) && Tree(neibs(i))==0
-                if EdgeCaps(p,i)>0
-                    FIFOInsert(neibs(i))
-                    Active(neibs(i))=1;
-                    Tree(neibs(i))=Tree(p);
-                    Parent(neibs(i))=p;
+            q=neibs(i);
+            if q && EdgeCaps(p,i)>0
+                if Tree(q)==0
+                    FIFOInsert(q)
+                    Active(q)=1;
+                    Tree(q)=Tree(p);
+                    Parent(q)=p;
+                    
+                else
+                    if Tree(q)~=Tree(p)
+                        path1=p;
+                        current_node=path1;
+                        while current_node~= r*c+1 && current_node~= r*c+2
+                            path1=[path1 Parent(current_node)];
+                            current_node=Parent(current_node);
+                        end
+                        path2=q;
+                        current_node=path2;
+                        while current_node~= r*c+1 && current_node~= r*c+2
+                            path2=[path2 Parent(current_node)];
+                            current_node=Parent(current_node);
+                        end
+                        P=[path1(end:-1:1) path2]
+                    end
                 end
-            end
-            if neibs(i) && Tree(neibs(i)) && Tree(neibs(i))~=Tree(p)
-                path1=p;
-                current_node=path1;
-                while current_node~= r*c+1 && current_node~= r*c+2
-                    path1=[path1 Parent(current_node)];
-                    current_node=Parent(current_node);
-                end
-                path2=neibs(i);
-                current_node=path2;
-                while current_node~= r*c+1 && current_node~= r*c+2
-                    path2=[path2 Parent(current_node)];
-                    current_node=Parent(current_node);
-                end
-                P=[path1(end:-1:1) path2];
-                
             end
         end
-        
-            if isempty(P)
-                break;
-            end
-        %     Augment(P);
-        
-        
-        %     Adoption();
     end
+    if isempty(P)
+        break;
+    end
+    %     Augment(P);
+    %     Adoption();
 end

@@ -12,10 +12,18 @@ c=50;
 img = zeros(r,c);
 img(15:35,15:35) = 1;
 % Since we will use to define probability of belonging to S, we don’t want fully hard constraints
+% img(img(:)<0.01)=0.01;
+% img(img(:)>.99)=.99;
+% figure(1); close(1); figure(1); colormap(gray(256));
+% image(255*img);
+
+noise = 0.4;
+img = zeros(r,c);
+img(15:35,15:35) = 1;
+rng('default');
+img = img +noise*randn(r,c);
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
-figure(1); close(1); figure(1); colormap(gray(256));
-image(255*img);
 % Parameters in our Graph Cut
 sigma = 0.2;
 lambda = 0.1;
@@ -64,35 +72,24 @@ for i=1:length(nodes)
     FIFOInsert(nodes(i));
 end
 % And perform the min-cut:
+iter=0;
 while (1)
-    %     P = Grow();
-    p = FIFOPop;
-    if Active(p)==1
-        neibs=[Edges(p) r*c+1 r*c+2];
-        %         check if left, right, down, up exists (necessary?)
-        for i = 1:length(neibs)
-            if neibs(i) && Tree(neibs(i))==0
-                if EdgeCaps(p,i)>0
-                    FIFOInsert(neibs(i))
-                    Active(neibs(i))=1;
-                    Tree(neibs(i))=Tree(p);
-                    Parent(neibs(i))=p;
-                end
-            end
-            if neibs(i) && Tree(neibs(i)) && Tree(neibs(i))~=Tree(p)
-                path1=p;
-                current_node=p;
-                while current_node~= r*c+1 || current_node~= r*c+2
-                    path1=[path1 Parent(currnet_node)]
-                    current_node=
-                
-            end
-        end
-        
-        %     if isempty(P)
-        %         break;
-        %     end
-        %     Augment(P);
-        %     Adoption();
+    iter=iter+1;
+    disp(['iteration ' num2str(iter)])
+    P = Grow();
+    if ActiveCheck>0
+        error('non-active nodes adjacent to free nodes found')
     end
+    
+    if isempty(P)
+        break;
+    end
+    Augment(P);
+    
+    while Orphan_cnt
+        p=Orphans()
+    
+    
 end
+figure(2); close(2); figure(2); colormap(gray(256));
+image(reshape(Tree(1:r*c)*255/2,[r,c]));

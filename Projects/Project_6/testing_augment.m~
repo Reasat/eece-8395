@@ -64,27 +64,54 @@ for i=1:length(nodes)
     FIFOInsert(nodes(i));
 end
 % And perform the min-cut:
+iter=0;
 while (1)
+    iter=iter+1;
+    disp(['iteration ' num2str(iter)])
     P = Grow();
+    if ActiveCheck>0
+        error('non-active nodes adjacent to free nodes found')
+    end
     
     if isempty(P)
         break;
     end
-    %     Augment(P);
+    % Augment(P);
     % find bottleneck capacity
     bot_cap=1e6;
     for i_node=2:length(P)
-        node1=P(i_node-1);
-        node2=P(i_node);
-        % is node2 left, righ, up or down
-        neibs=Edges(node1);
-        cap=EdgeCaps(node1,neibs==node2);
-        if length(cap)>1 % dubious condition, stems from the fact that Edges have dubious duplicate neibs
-            cap=cap(1);
+        p=P(i_node-1);
+        q=P(i_node);
+        % The edges are undirected according to class note.
+        np=min(p,q);
+        nq=max(p,q);
+        
+        if nq>r*c
+            if nq==r*c+1
+                cap=EdgeCaps(np,5);
+            end
+            if nq==r*c+2
+                cap=EdgeCaps(np,6);
+            end
+        else
+            neibs=Edges(np,:);
+            pos=find(neibs==nq,1); % dubious condition, stems from the fact that Edges have dubious duplicate neibs
+            cap=EdgeCaps(np,pos);
         end
         if bot_cap>cap
             bot_cap=cap;
         end
-        %     Adoption();
+    end
+    %%    push flow
+    for i_node=2:length(P)
+        p=P(i_node-1);
+        q=P(i_node);
+        % The edges are undirected according to class note.
+        np=min(p,q);
+        nq=max(p,q);
+        max_flow(np,nq,bot_cap);
+        
+        %Adoption();
+        
     end
 end
