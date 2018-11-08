@@ -14,6 +14,7 @@ while FIFOlen
                         Active(q)=1;
                         Tree(q)=Tree(p);
                         Parent(q)=p;
+                        PLengths(q)=PLengths(q)+1;
                         FIFOInsert(q)
                         
                     else

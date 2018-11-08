@@ -33,12 +33,5 @@ if capacity==0
             disp(['orphan ' num2str(np)])
         end
     end
-%     if Tree(np)~=Tree(nq)
-%         if Parent(np)
-%             Parent(np)=-1;
-%             Orphan_cnt=Orphan_cnt+1;
-%             Orphans(Orphan_cnt)=np;
-%         end
-%     end
 end
 

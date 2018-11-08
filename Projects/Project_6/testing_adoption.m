@@ -24,6 +24,9 @@ rng('default');
 img = img +noise*randn(r,c);
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
+figure(1); close(1); figure(1); colormap(gray(256));
+image(255*img);
+
 % Parameters in our Graph Cut
 sigma = 0.2;
 lambda = 0.1;
@@ -89,8 +92,51 @@ while (1)
     while Orphan_cnt
         p=Orphans(Orphan_cnt);
         Orphan_cnt=Orphan_cnt-1;
-    
-    
+        neibs=Edges(p);
+        for i=1:length(neibs)
+            % modify Plengths
+            q=neibs(i);
+            if q
+                % check if path to tree exists
+                current_node=q;
+                while current_node~= r*c+1 && current_node~= r*c+2 && current_node
+                    current_node=Parent(current_node);
+                end
+                if Tree(p)+r*c==current_node
+                    path2tree=1;
+                else
+                    path2tree=0;
+                end
+                % adopt
+                if Tree(p)==Tree(q) && EdgeCaps(p,i) && path2tree
+                    Parent(p)=q;
+                    
+                    % Active() state of p remains unchanged
+                end
+            end
+        end
+        if Parent(p)==-1 % if p not adopted
+            neibs=Edges(p);
+            for i=1:length(neibs)
+                q=neibs(i);
+                if q
+                    if Tree(p)==Tree(q)
+                        if EdgeCaps(p,i)
+                            FIFOInsert(q)
+                            Active(q)=1;
+                        end
+                    end
+                    if Parent(q)==p
+                        Orphan_cnt=Orphan_cnt+1;
+                        Orphans(Orphan_cnt)=q;
+                        Parent(q)=-1;
+                    end
+                end
+                Tree(p)=0;
+                Active(p)=0;
+            end
+        end
+    end
 end
 figure(2); close(2); figure(2); colormap(gray(256));
 image(reshape(Tree(1:r*c)*255/2,[r,c]));
