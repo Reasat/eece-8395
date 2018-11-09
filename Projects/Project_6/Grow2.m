@@ -1,26 +1,27 @@
-function P=Grow()
+function P=Grow2()
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
 P=[];
 while FIFOlen
     p = FIFOPop;
     if Active(p)==1
+        Active(p)=0;
         neibs=[Edges(p,:) r*c+1 r*c+2];
-        %         check if left, right, down, up exists (necessary?)
+        %  check if left, right, down, up exists (necessary?)
         for i = 1:length(neibs)
             q=neibs(i);
             if q
-%                 np=min(p,q);
-%                 nq=max(p,q);
-                if EdgeCaps(p,i)>0
+                np=min(p,q);
+                nq=max(p,q);
+                if EdgeCaps(np,neibs==nq)>0
                     if Tree(q)==0
                         Active(q)=1;
                         Tree(q)=Tree(p);
                         Parent(q)=p;
                         PLengths(q)=PLengths(q)+1;
                         FIFOInsert(q)
-                        
-                    else
-                        if Tree(q)~=Tree(p)
+                    end    
+                    if Tree(q)~=0 
+                        if Tree(q)~=Tree(p) 
                             path1=p;
                             current_node=path1;
                             while current_node~= r*c+1 && current_node~= r*c+2
@@ -43,8 +44,6 @@ while FIFOlen
                 end
             end
         end
-        Active(p)=0;
-        %         if
-        %         end
     end
+    
 end

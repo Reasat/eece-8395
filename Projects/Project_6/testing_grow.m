@@ -7,21 +7,21 @@ close all
 clc
 % Initialize all of our helper Hash Tables:
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
-% r=50;
-% c=50;
-% img = zeros(r,c);
-% img(15:35,15:35) = 1;
-
-r=10;
-c=10;
+r=50;
+c=50;
 img = zeros(r,c);
-img(5:7,5:7) = 1;
+img(15:35,15:35) = 1;
+
+% r=10;
+% c=10;
+% img = zeros(r,c);
+% img(5:7,5:7) = 1;
 
 % Since we will use to define probability of belonging to S, we don’t want fully hard constraints
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
-% figure(1); close(1); figure(1); colormap(gray(256));
-% image(255*img);
+figure(1); close(1); figure(1); colormap(gray(256));
+image(255*img);
 % Parameters in our Graph Cut
 sigma = 0.2;
 lambda = 0.1;
@@ -70,45 +70,63 @@ for i=1:length(nodes)
     FIFOInsert(nodes(i));
 end
 % And perform the min-cut:
+iter=0;
 while (1)
     %     P = Grow();
+    iter=iter+1;
+    disp(['iteration ' num2str(iter)])
     P=[];
-    p = FIFOPop;
-    if Active(p)==1
-        neibs=[Edges(p) r*c+1 r*c+2];
-        %         check if left, right, down, up exists (necessary?)
-        for i = 1:length(neibs)
-            q=neibs(i);
-            if q && EdgeCaps(p,i)>0
-                if Tree(q)==0
-                    FIFOInsert(q)
-                    Active(q)=1;
-                    Tree(q)=Tree(p);
-                    Parent(q)=p;
-                    
-                else
-                    if Tree(q)~=Tree(p)
-                        path1=p;
-                        current_node=path1;
-                        while current_node~= r*c+1 && current_node~= r*c+2
-                            path1=[path1 Parent(current_node)];
-                            current_node=Parent(current_node);
+    while FIFOlen
+        p = FIFOPop;
+        if Active(p)==1
+            neibs=[Edges(p,:) r*c+1 r*c+2];
+            %         check if left, right, down, up exists (necessary?)
+            for i = 1:length(neibs)
+                q=neibs(i);
+                if q
+                    np=min(p,q);
+                    nq=max(p,q);
+                    if EdgeCaps(np,neibs==nq)>0
+                        if Tree(q)==0
+                            Active(q)=1;
+                            Tree(q)=Tree(p);
+                            Parent(q)=p;
+                            PLengths(q)=PLengths(q)+1;
+                            FIFOInsert(q)
+                            
+                        else
+                            if Tree(q)~=Tree(p)
+                                path1=p;
+                                current_node=path1;
+                                while current_node~= r*c+1 && current_node~= r*c+2
+                                    path1=[path1 Parent(current_node)];
+                                    current_node=Parent(current_node);
+                                end
+                                path2=q;
+                                current_node=path2;
+                                while current_node~= r*c+1 && current_node~= r*c+2
+                                    path2=[path2 Parent(current_node)];
+                                    current_node=Parent(current_node);
+                                end
+                                P=[path1(end:-1:1) path2];
+                                if P(1)~=r*c+1
+                                    P=P(end:-1:1);
+                                end
+%                                 return
+                            end
                         end
-                        path2=q;
-                        current_node=path2;
-                        while current_node~= r*c+1 && current_node~= r*c+2
-                            path2=[path2 Parent(current_node)];
-                            current_node=Parent(current_node);
-                        end
-                        P=[path1(end:-1:1) path2]
                     end
                 end
             end
+            Active(p)=0;
         end
     end
+    P
     if isempty(P)
         break;
     end
-    %     Augment(P);
-    %     Adoption();
+        Augment(P);
+%         Adoption();
 end
+figure(2); close(2); figure(2); colormap(gray(256));
+image(reshape(Tree(1:r*c)*255/2,[r,c]));

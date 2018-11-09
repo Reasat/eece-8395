@@ -79,10 +79,10 @@ iter=0;
 while (1)
     iter=iter+1;
     disp(['iteration ' num2str(iter)])
-    P = Grow();
-    if ActiveCheck>0
-        error('non-active nodes adjacent to free nodes found')
-    end
+    P = Grow2()
+%     if ActiveCheck>0
+%         error('non-active nodes adjacent to free nodes found')
+%     end
     
     if isempty(P)
         break;
@@ -92,36 +92,51 @@ while (1)
     while Orphan_cnt
         p=Orphans(Orphan_cnt);
         Orphan_cnt=Orphan_cnt-1;
-        neibs=Edges(p);
+        neibs=[Edges(p,:) r*c+1 r*c+2];
         for i=1:length(neibs)
             % modify Plengths
             q=neibs(i);
             if q
                 % check if path to tree exists
                 current_node=q;
-                while current_node~= r*c+1 && current_node~= r*c+2 && current_node
+                while (current_node~= r*c+1 || current_node~= r*c+2) && (current_node>0)
                     current_node=Parent(current_node);
                 end
-                if Tree(p)+r*c==current_node
+                if Tree(p)+r*c==current_node % 1 or 2 + r*c == current_node
                     path2tree=1;
                 else
                     path2tree=0;
                 end
                 % adopt
-                if Tree(p)==Tree(q) && EdgeCaps(p,i) && path2tree
+                np=min(p,q);
+                nq=max(p,q);
+                if nq<=r*c
+                    cap=EdgeCaps(np,Edges(np,:)==nq);
+                else
+                    if nq==r*c+1
+                        cap=EdgeCaps(np,5);
+                    end
+                    if nq==r*c+1
+                        cap=EdgeCaps(np,6);
+                    end
+                end
+                
+                if Tree(p)==Tree(q) && cap>0 && path2tree
                     Parent(p)=q;
-                    
                     % Active() state of p remains unchanged
                 end
             end
         end
         if Parent(p)==-1 % if p not adopted
-            neibs=Edges(p);
+            neibs=Edges(p,:);
             for i=1:length(neibs)
                 q=neibs(i);
                 if q
                     if Tree(p)==Tree(q)
-                        if EdgeCaps(p,i)
+                        np=min(p,q);
+                        nq=max(p,q);
+                        
+                        if EdgeCaps(np,Edges(np,:)==nq)>0
                             FIFOInsert(q)
                             Active(q)=1;
                         end
@@ -132,9 +147,9 @@ while (1)
                         Parent(q)=-1;
                     end
                 end
-                Tree(p)=0;
-                Active(p)=0;
             end
+            Tree(p)=0;
+            Active(p)=0;
         end
     end
 end

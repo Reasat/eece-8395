@@ -10,10 +10,10 @@ if nq>r*c
         capacity=EdgeCaps(np,6);
     end
 else
-    neibs=Edges(np,:);
-    pos=find(neibs==nq,1); % Edges have dubious duplicate neibs, fix it
-    EdgeCaps(np,pos)=EdgeCaps(np,pos)-bot_cap;
-    capacity=EdgeCaps(np,pos);
+%     neibs=Edges(np,:);
+%     pos=find(neibs==nq,1); % Edges have dubious duplicate neibs, fix it
+    EdgeCaps(np,Edges(np,:)==nq)=EdgeCaps(np,Edges(np,:)==nq)-bot_cap;
+    capacity=EdgeCaps(np,Edges(np,:)==nq);
 end
 
 if capacity==0
