@@ -1,28 +1,28 @@
-% EECE 8395: Medical Image Segmentation
-% Vanderbilt University
-% Prof. Jack H. Noble
-% Graph Cuts
-clear all
-close all
-clc
+function [res, totcap] = Graphcut2D(sigma, lambda, noise,imshow)
+if nargin<4
+    imshow=0;
+end
+
 % Initialize all of our helper Hash Tables:
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
 r=50;
 c=50;
 
-noise = 0.4;
+% noise = 0.4;
 img = zeros(r,c);
 img(15:35,15:35) = 1;
 rng('default');
 img = img +noise*randn(r,c);
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
-figure(1); close(1); figure(1); colormap(gray(256));
-image(255*img);
 
+if imshow==1
+    figure(1); close(1); figure(1); colormap(gray(256));
+    image(255*img);
+end
 % Parameters in our Graph Cut
-sigma = 0.2;
-lambda = 0.1;
+% sigma = 0.2;
+% lambda = 0.1;
 
 Tree = zeros(r*c+2,1);
 Tree(r*c+1)=1; % s
@@ -72,83 +72,26 @@ end
 iter=0;
 while (1)
     iter=iter+1;
-    disp(['iteration ' num2str(iter)])
-    P = Grow2();
+%     disp(['iteration ' num2str(iter)])
+    P = Grow();
+%     disp('found path')
+%     disp(P)
     if ActiveCheck>0
-        error('non-active nodes adjacent to free nodes found')
+        disp('non-active nodes adjacent to free nodes found')
     end
-    
     if isempty(P)
         break;
     end
+    
     Augment(P);
     
-    % Adoption
-    while Orphan_cnt
-        p=Orphans(Orphan_cnt);
-        Orphan_cnt=Orphan_cnt-1;
-        neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
-        for i=1:length(neibs)
-            % modify Plengths
-            q=neibs(i);
-            
-            % check if path to tree exists
-            current_node=q;
-            while Parent(current_node)~=0
-                current_node=Parent(current_node);
-            end
-            if current_node>r*c
-                path2tree=1;
-            else
-                path2tree=0;
-            end
-            % get capacity
-            if q<=r*c
-                np=min(p,q);
-                nq=max(p,q);
-                cap=EdgeCaps(np,Edges(np,1:Edge_Lens(np))==nq);
-            else
-                if q==r*c+1
-                    cap=EdgeCaps(np,5);
-                end
-                if q==r*c+2
-                    cap=EdgeCaps(np,6);
-                end
-            end
-            
-            if Tree(p)==Tree(q) && cap>0 && path2tree
-                Parent(p)=q;
-                break
-                % Active() state of p remains unchanged
-            end
-            
-        end
-        if Parent(p)==0 % no valid neighbours
-            neibs=Edges(p,1:Edge_Lens(p));
-            for i=1:length(neibs)
-                q=neibs(i);
-                
-                if Tree(p)==Tree(q)
-                    np=min(p,q);
-                    nq=max(p,q);
-                    
-                    if EdgeCaps(np,Edges(1:Edge_Lens(np))==nq)>0
-                        FIFOInsert(q)
-                        Active(q)=1;
-                    end
-                end
-                if Parent(q)==p
-                    Orphan_cnt=Orphan_cnt+1;
-                    Orphans(Orphan_cnt)=q;
-                    Parent(q)=0;
-                end
-                
-            end
-            Tree(p)=0;
-            Active(p)=0;
-        end
-    end
+    Adoption()
+    
 end
-totcap= CutCheck()
-figure(2); close(2); figure(2); colormap(gray(256));
-image(reshape(Tree(1:r*c)*255/2,[r,c]));
+
+totcap= CutCheck();
+res=Tree(1:r*c);
+if imshow==1
+    figure(2); close(2); figure(2); colormap(gray(256));
+    image(reshape(Tree(1:r*c)*255/2,[r,c]));
+end

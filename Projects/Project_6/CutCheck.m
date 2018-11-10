@@ -1,4 +1,4 @@
-function totcap = CutCheck
+function totcap=CutCheck
 global EdgeCaps Edges Edge_Lens Tree
 totcap=0;
 for i=1:length(Edge_Lens)

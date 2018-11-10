@@ -1,50 +1,51 @@
 function P=Grow()
-global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
+global Parent Tree Active EdgeCaps Edges Edge_Lens r c PLengths
 P=[];
 while FIFOlen
-    p = FIFOPop;
+    p=FIFOpeek;
     if Active(p)==1
-        neibs=[Edges(p,:) r*c+1 r*c+2];
-        %         check if left, right, down, up exists (necessary?)
+        %      Active(p)=0;
+        neibs=[r*c+1 r*c+2 Edges(p,1:Edge_Lens(p))];
         for i = 1:length(neibs)
             q=neibs(i);
-            if q
-%                 np=min(p,q);
-%                 nq=max(p,q);
-                if EdgeCaps(p,i)>0
-                    if Tree(q)==0
-                        Active(q)=1;
-                        Tree(q)=Tree(p);
-                        Parent(q)=p;
-                        PLengths(q)=PLengths(q)+1;
-                        FIFOInsert(q)
-                        
-                    else
-                        if Tree(q)~=Tree(p)
-                            path1=p;
-                            current_node=path1;
-                            while current_node~= r*c+1 && current_node~= r*c+2
-                                path1=[path1 Parent(current_node)];
-                                current_node=Parent(current_node);
-                            end
-                            path2=q;
-                            current_node=path2;
-                            while current_node~= r*c+1 && current_node~= r*c+2
-                                path2=[path2 Parent(current_node)];
-                                current_node=Parent(current_node);
-                            end
-                            P=[path1(end:-1:1) path2];
-                            if P(1)~=r*c+1
-                                P=P(end:-1:1);
-                            end
-                            return
+            cap=EdgeFunc(p,q);
+            
+            if cap>0
+                % Add free nodes
+                if Tree(q)==0
+%                     disp(['adding free node to FIFO ' num2str(q)])
+                    Active(q)=1;
+                    Tree(q)=Tree(p);
+                    Parent(q)=p;
+                    %                     PLengths(q)=PLengths(q)+1;
+                    FIFOInsert(q)
+                end
+                % Return path
+                if Tree(q)~=0
+                    if Tree(q)~=Tree(p)
+                        path1=p;
+                        current_node=p;
+                        while Parent(current_node)
+                            path1=[path1 Parent(current_node)];
+                            current_node=Parent(current_node);
                         end
+                        path2=q;
+                        current_node=q;
+                        while Parent(current_node)
+                            path2=[path2 Parent(current_node)];
+                            current_node=Parent(current_node);
+                        end
+                        P=[path1(end:-1:1) path2];
+                        if P(1)~=r*c+1
+                            P=P(end:-1:1);
+                        end
+                        return
                     end
                 end
             end
+            
         end
-        Active(p)=0;
-        %         if
-        %         end
     end
+    FIFOPop;
+    Active(p)=0;
 end

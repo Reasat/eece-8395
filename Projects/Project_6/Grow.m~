@@ -1,47 +1,62 @@
-function P=Grow2()
+function P=Grow()
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c PLengths
 P=[];
 while FIFOlen
-    p = FIFOPop;
+    p=FIFOpeek;
     if Active(p)==1
-%      Active(p)=0;
-        neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
+        %      Active(p)=0;
+        neibs=[r*c+1 r*c+2 Edges(p,1:Edge_Lens(p))];
         for i = 1:length(neibs)
             q=neibs(i);
             np=min(p,q);
             nq=max(p,q);
-
-            if EdgeCaps(np,neibs==nq)>0
+            if nq>r*c
+                if nq==r*c+1
+                    cap=EdgeCaps(p,5);
+                end
+                if nq==r*c+2
+                    cap=EdgeCaps(p,6);
+                end
+            
+            else
+                EdgeCaps(np,Edges(np,1:Edge_Lens(np))==nq)
+            
+            if EdgeCaps(np,Edges(np,1:Edge_Lens(np))==nq)>0
                 % Add free nodes
                 if Tree(q)==0
+                    disp(['adding free node to FIFO ' num2str(q)])
                     Active(q)=1;
                     Tree(q)=Tree(p);
                     Parent(q)=p;
-                    PLengths(q)=PLengths(q)+1;
+                    %                     PLengths(q)=PLengths(q)+1;
                     FIFOInsert(q)
                 end
-                % Return path 
+                % Return path
                 if Tree(q)~=0
                     if Tree(q)~=Tree(p)
+                        path1=p;
                         current_node=p;
                         while Parent(current_node)
-                            path1=[current_node Parent(current_node)];
+                            path1=[path1 Parent(current_node)];
                             current_node=Parent(current_node);
-                        end                       
+                        end
+                        path2=q;
                         current_node=q;
                         while Parent(current_node)
-                            path2=[current_node Parent(current_node)];
+                            path2=[path2 Parent(current_node)];
                             current_node=Parent(current_node);
                         end
                         P=[path1(end:-1:1) path2];
                         if P(1)~=r*c+1
                             P=P(end:-1:1);
                         end
-                        
+                        return
                     end
                 end
             end
             
         end
     end
+    FIFOPop;
+    Active(p)=0;
 end

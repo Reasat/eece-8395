@@ -1,7 +1,7 @@
 function totcap = ActiveCheck
-global EdgeCaps Edges Edge_Lens Tree Active
+global EdgeCaps Edges Edge_Lens Tree Active r c
 totcap=0;
-for i=1:length(Edge_Lens)
+for i=1:r*c
     if Tree(i)~=0 && Active(i)==0
         for j=1:Edge_Lens(i)
             if Tree(Edges(i,j))==0
@@ -17,11 +17,11 @@ for i=1:length(Edge_Lens)
         end
     end
 end
-if sum(Tree(1:length(Edge_Lens))==0)>0
-    if Active((length(Edge_Lens)+1))==0
-        totcap = totcap + sum(EdgeCaps((1:length(Edge_Lens))==0,end-1));
+if sum(Tree(1:r*c)==0)>0
+    if Active(r*c+1)==0
+        totcap = totcap + sum(EdgeCaps(Tree(1:r*c)==0,end-1));
     end
-    if Active((length(Edge_Lens)+2))==0
-        totcap = totcap + sum(EdgeCaps((1:length(Edge_Lens))==0,end));
+    if Active(r*c+2)==0
+        totcap = totcap + sum(EdgeCaps(Tree(1:r*c)==0,end));
     end
 end

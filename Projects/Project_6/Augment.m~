@@ -1,0 +1,54 @@
+function Augment(P)
+global EdgeCaps Edges Edge_Lens r c  Parent Orphans Orphan_cnt Tree
+% find bottleneck capacity
+bot_cap=1e6;
+    
+for i_node=2:length(P)
+    p=P(i_node-1);
+    q=P(i_node);
+    % The edges are undirected according to class note.
+    np=min(p,q);
+    nq=max(p,q);
+    if nq>r*c
+        if nq==r*c+1
+            cap=EdgeCaps(np,5);
+        end
+        if nq==r*c+2
+            cap=EdgeCaps(np,6);
+        end
+    else
+        cap=EdgeCaps(np,Edges(np,1:Edge_Lens(np))==nq);
+    end
+    if bot_cap>cap
+        bot_cap=cap;
+    end
+end
+%%    push flow
+for i_node=2:length(P)
+    p=P(i_node-1);
+    q=P(i_node);
+
+    np=min(p,q);
+    nq=max(p,q);
+    cap_res=push_flow(np,nq,bot_cap);
+    
+    if cap_res==0
+%         disp(['zero capacity edge found: ' num2str(p) ' ' num2str(q)])     
+        if Tree(p)==1 && Tree(q)==1
+            if nq<=r*c % update only if the child node is not s or t (necessary?)
+                Parent(q)=0;
+                Orphan_cnt=Orphan_cnt+1;
+                Orphans(Orphan_cnt)=nq;
+                disp(['orphan ' num2str(nq)])
+            end
+        end
+        if Tree(np)==2 && Tree(nq)==2
+            if np<=r*c
+                Parent(np)=0;
+                Orphan_cnt=Orphan_cnt+1;
+                Orphans(Orphan_cnt)=np;
+                disp(['orphan ' num2str(np)])
+            end
+        end
+    end
+end
