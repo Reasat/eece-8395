@@ -1,4 +1,5 @@
 function cap=EdgeFunc(p,q)
+% returns capacity between two nodes
 global Edges EdgeCaps Edge_Lens r c
 np=min(p,q);
 nq=max(p,q);

@@ -1,4 +1,5 @@
 function cap_res=push_flow(p,q,bot_cap)
+% returns residual capacity between nodes after a max flow operation
 global r c Edges EdgeCaps Edge_Lens
 
 np=min(p,q);

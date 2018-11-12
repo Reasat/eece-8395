@@ -1,8 +1,9 @@
+
 function P=Grow()
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c PLengths
 P=[];
-while FIFOlen
-    p=FIFOpeek;
+while FIFOLen
+    p=FIFOPeek;
     if Active(p)==1
         %      Active(p)=0;
         neibs=[r*c+1 r*c+2 Edges(p,1:Edge_Lens(p))];
