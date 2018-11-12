@@ -1,6 +1,0 @@
-function cap=EdgeFunc(p,q)
-global Edges EdgeCaps Edge_Lens
-np=min(p,q);
-nq=max(p,q);
-if 
-cap=EdgeCaps(np,Edges(np,1:Edge_Lens(np))==nq);
