@@ -5,6 +5,7 @@
 clear all
 close all
 clc
+imshow=1;
 % Initialize all of our helper Hash Tables:
 global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
 r=50;
@@ -17,9 +18,11 @@ rng('default');
 img = img +noise*randn(r,c);
 img(img(:)<0.01)=0.01;
 img(img(:)>.99)=.99;
-figure(1); close(1); figure(1); colormap(gray(256));
-image(255*img);
 
+if imshow==1
+    figure(1); close(1); figure(1); colormap(gray(256));
+    image(255*img);
+end
 % Parameters in our Graph Cut
 sigma = 0.2;
 lambda = 0.1;
@@ -72,10 +75,10 @@ end
 iter=0;
 while (1)
     iter=iter+1;
-    disp(['iteration ' num2str(iter)])
+%     disp(['iteration ' num2str(iter)])
     P = Grow();
-    disp('found path')
-    disp(P)
+%     disp('found path')
+%     disp(P)
     if ActiveCheck>0
         disp('non-active nodes adjacent to free nodes found')
     end
@@ -88,6 +91,10 @@ while (1)
     Adoption()
     
 end
-totcap= CutCheck()
-figure(2); close(2); figure(2); colormap(gray(256));
-image(reshape(Tree(1:r*c)*255/2,[r,c]));
+
+totcap= CutCheck();
+res=Tree(1:r*c);
+if imshow==1
+    figure(2); close(2); figure(2); colormap(gray(256));
+    image(reshape(Tree(1:r*c)*255/2,[r,c]));
+end

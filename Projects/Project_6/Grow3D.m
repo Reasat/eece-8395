@@ -1,18 +1,18 @@
-function P=Grow()
-global Parent Tree Active EdgeCaps Edges Edge_Lens r c PLengths
+function P=Grow3D()
+global Parent Tree Active EdgeCaps Edges Edge_Lens r c d PLengths
 P=[];
 while FIFOLen
     p=FIFOPeek;
     if Active(p)==1
         %      Active(p)=0;
-        if p<=r*c
-            neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
+        if p<=r*c*d
+            neibs=[Edges(p,1:Edge_Lens(p)) r*c*d+1 r*c*d+2];
         else
-            neibs=1:r*c;
+            neibs=1:r*c*d;
         end
         for i = 1:length(neibs)
             q=neibs(i);
-            cap=EdgeFunc(p,q);
+            cap=EdgeFunc3D(p,q);
             
             if cap>0
                 % Add free nodes
@@ -40,7 +40,7 @@ while FIFOLen
                             current_node=Parent(current_node);
                         end
                         P=[path1(end:-1:1) path2];
-                        if P(1)~=r*c+1
+                        if P(1)~=r*c*d+1
                             P=P(end:-1:1);
                         end
                         return

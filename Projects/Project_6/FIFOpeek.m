@@ -1,4 +1,4 @@
-function node=FIFOpeek()
+function node=FIFOPeek()
 global fifo
 if fifo.start > fifo.stop
     node=[];
