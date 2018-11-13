@@ -23,8 +23,10 @@ while Orphan_cnt
         cap=EdgeFunc3D(p,q);
         
         if Tree(p)==Tree(q) && cap>0 && path2tree
-            Parent(p)=q;
-            break
+            if ~(Parent(p)~=0 && PLengths(p)<PLengths(q)+1)
+                Parent(p)=q;
+                PLengths(p)=Parent(q)+1;
+            end
             % Active() state of p remains unchanged
         end
         

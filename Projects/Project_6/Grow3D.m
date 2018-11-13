@@ -21,7 +21,7 @@ while FIFOLen
                     Active(q)=1;
                     Tree(q)=Tree(p);
                     Parent(q)=p;
-                    %                     PLengths(q)=PLengths(q)+1;
+                    PLengths(q)=PLengths(q)+1;
                     FIFOInsert(q)
                 end
                 % Return path

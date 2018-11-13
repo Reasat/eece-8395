@@ -1,5 +1,5 @@
 function Augment3D(P)
-global EdgeCaps Edges Edge_Lens r c d Parent Orphans Orphan_cnt Tree
+global EdgeCaps Edges Edge_Lens r c d Parent Orphans Orphan_cnt Tree PLengths
 % find bottleneck capacity
 bot_cap=1e6;
 
@@ -25,6 +25,7 @@ for i_node=2:length(P)
         if Tree(p)==1 && Tree(q)==1
             if q<=r*c*d % update only if the child node is not s or t (necessary?)
                 Parent(q)=0;
+                PLengths(q)=0;
                 Orphan_cnt=Orphan_cnt+1;
                 Orphans(Orphan_cnt)=q;
 %                 disp(['orphan ' num2str(q)])
@@ -33,6 +34,7 @@ for i_node=2:length(P)
         if Tree(p)==2 && Tree(q)==2
             if p<=r*c*d
                 Parent(p)=0;
+                PLengths(p)=0;
                 Orphan_cnt=Orphan_cnt+1;
                 Orphans(Orphan_cnt)=p;
 %                 disp(['orphan ' num2str(p)])

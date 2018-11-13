@@ -75,7 +75,7 @@ end
 iter=0;
 while (1)
     iter=iter+1;
-%     disp(['iteration ' num2str(iter)])
+    disp(['iteration ' num2str(iter)])
     P = Grow();
 %     disp('found path')
 %     disp(P)

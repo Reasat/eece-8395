@@ -19,15 +19,14 @@ while Orphan_cnt
             path2tree=0;
         end
         % get capacity
-        
+
         cap=EdgeFunc(p,q);
         
         if Tree(p)==Tree(q) && cap>0 && path2tree
-%             if ~(Parent(p)~=0 && PLengths(p)<PLengths(q)+1)&&Parent(q)==Parent(p)
+            if ~(Parent(p)~=0 && PLengths(p)<PLengths(q)+1)&&Par
                 Parent(p)=q;
                 PLengths(p)=Parent(q)+1;
-                break
-%             end
+            end
             % Active() state of p remains unchanged
         end
         
@@ -36,17 +35,20 @@ while Orphan_cnt
         neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
         for i=1:length(neibs)
             q=neibs(i);
-            if Parent(q)==p
-                Orphan_cnt=Orphan_cnt+1;
-                Orphans(Orphan_cnt)=q;
-                Parent(q)=0;
-                PLengths(q)=0;
-            end
+%             if Tree(p)==Tree(q)
+                if Parent(q)==p 
+                    Orphan_cnt=Orphan_cnt+1;
+                    Orphans(Orphan_cnt)=q;
+                    Parent(q)=0;
+                    PLengths(q)=0;
+                end
+                
+                if EdgeFunc(p,q)>0  && Tree(q)~=0 && ~Active(q) %%check capacity so they are active in grow
+                    FIFOInsert(q)
+                    Active(q)=1;
+                end
+%             end
             
-            if EdgeFunc(p,q)>0  && Tree(q)~=0 && ~Active(q) 
-                FIFOInsert(q)
-                Active(q)=1;
-            end
         end
         Tree(p)=0;
         Active(p)=0;
