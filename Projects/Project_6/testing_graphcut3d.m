@@ -4,29 +4,47 @@ clc
 % This demo is an example of a 3D graph cut segmentation with user input.
 img = ReadNrrd('D:\Data\EECE_8395\0522c0001\img.nrrd');
 crp = img;
-crp.data = (img.data(200:320,140:225,52:80))/10+100;
+crp.data = img.data(200:320,140:225,52:80);
 crp.dim = size(crp.data);
-% img.data = img.data/10+100;
-figure(1); close(1); figure(1); colormap(gray(256));
-DisplayVolume(crp);
-crp.data = round((crp.data-100)*10);
+
 % User collected seeds from the GetSeeds function: fore; back;
 % We use the user seeds to build our probability distribution functions:
-fore=GetSeeds();
+
+figure(1); close(1); figure(1); colormap(gray(256));
+crp.data=crp.data/10+100;
+DisplayVolume(crp);
+fore=GetSeeds();  
 back=GetSeeds();
-% fore= [54    15    14     5
-%    101    64    14     5
-%     54    14    15     5
-%     70    13    16     5];
-% back=[ 58    40    16     5
-%     12    11    16     5
-%    110    12    16     5
-%    110    12    16     5
-%     38    40    16     5
-%     55    35    17     5
-%     69    49    17     5
-%     32    36    17     5
-%     13    24    17     5];
+crp.data=round((crp.data-100)*10);
+
+% fore=[54.0000   15.0000   14.0000    2.0083
+%    25.0000   70.0000   14.0000    0.8102
+%    24.0000   66.0000   14.0000    0.8102
+%   102.0000   58.0000   14.0000    1.1863
+%    54.0000   15.0000   15.0000    1.9105
+%    23.0000   69.0000   15.0000    0.9805
+%    24.0000   64.0000   15.0000    0.9805
+%   102.0000   69.0000   15.0000    0.9805
+%    54.0000   14.0000   16.0000    1.5791
+%    24.0000   72.0000   16.0000    1.1512
+%   104.0000   67.0000   16.0000    1.1512
+%   102.0000   70.0000   16.0000    1.1512
+%    23.0000   73.0000   17.0000    1.2308
+%    22.0000   69.0000   17.0000    1.2308
+%   103.0000   71.0000   17.0000    1.2308];
+% 
+% back=[ 41.0000   36.0000   16.0000    4.0500
+%   108.0000   14.0000   16.0000    4.0500
+%    10.0000   15.0000   16.0000    4.0500
+%    66.0000   52.0000   17.0000    4.0500
+%    93.0000   33.0000   17.0000    4.0500
+%    20.0000   26.0000   17.0000    4.0500
+%   102.0000   15.0000   18.0000    4.0500
+%    81.0000   80.0000   18.0000    4.0500
+%    47.0000   81.0000   18.0000    4.0500
+%    12.0000   28.0000   18.0000    4.0500];
+% % 
+
 mn = min(crp.data(:));
 mx = max(crp.data(:));
 numbins=64;
@@ -60,12 +78,11 @@ hist_back = hist_back/sum(hist_back);
 hist_fore = hist_fore + 0.001;
 hist_back = hist_back + 0.001;
 
-sigma=0.2;
-lambda=0.1;
-img=crp.data;
+sigma=200;
+lambda=0.025;
 % res=GraphCut3D(img,hist_fore,hist_back,binsize,sigma,lambda) ;
 global Parent Tree Active EdgeCaps Edges Edge_Lens  r c d Orphans Orphan_cnt PLengths;
-[r,c,d] = size(img);
+[r,c,d] = size(crp.data);
 % Initialize all our helper variables and set Edge capacities
 FIFOInit(2*r*c*d);
 Tree = zeros(r*c*d+2,1);
@@ -98,8 +115,8 @@ EdgeCaps(:,5) = (1-lambda)*reshape(D,[r*c*d,1]);%z+1
 D = -ones(r,c,d);
 D(:,:,2:end) =  exp(-((crp.data(:,:,1:end-1)-crp.data(:,:,2:end)).^2)/(2*sigma*sigma));
 EdgeCaps(:,6) = (1-lambda)*reshape(D,[r*c*d,1]);%z-1
-EdgeCaps(:,7) = -lambda*log(hist_back(floor((img(:)'-mn)/binsize)+1));%s
-EdgeCaps(:,8) = -lambda*log(hist_fore(floor((img(:)'-mn)/binsize)+1));%t
+EdgeCaps(:,7) = -lambda*log(hist_back(floor((crp.data(:)'-mn)/binsize)+1));%s
+EdgeCaps(:,8) = -lambda*log(hist_fore(floor((crp.data(:)'-mn)/binsize)+1));%t
 
 K = max(sum((EdgeCaps(:,1:6).*(EdgeCaps(:,1:6)>0))'))+1;
 for i=1:size(fore,1)
@@ -144,14 +161,14 @@ iter=0;
 tic
 while (1)
     iter=iter+1;
-    P = Grow3D();
+    P = Grow();
     if isempty(P)
         break;
     end
     
-    Augment3D(P);
-    Adoption3D();
-    if mod(iter,1000)==0
+    Augment(P);
+    Adoption();
+    if mod(iter,5000)==0
         disp(['iteration: ' num2str(iter)])
         CutCheck()
     end
@@ -159,24 +176,21 @@ end
 toc
 res = reshape(Tree(1:r*c*d),[r,c,d]); 
 
-inp = guidata(gcf);
-inp.cntrs = zeros(2,1000,d); 
-for i=1:d
-    cntr = contour(res(:,:,i)',1.5);
-    inp.cntrs(:,1:size(cntr,2),i) = cntr;
-end
-guidata(gcf,inp);
+% inp = guidata(gcf);
+% inp.cntrs = zeros(2,1000,d); 
+% for i=1:d
+%     cntr = contour(res(:,:,i)',1.5);
+%     inp.cntrs(:,1:size(cntr,2),i) = cntr;
+% end
+% guidata(gcf,inp);
 figure(); 
 msh = isosurface(res,1.5); 
 msh.vertices = msh.vertices.*repmat(crp.voxsz,[length(msh.vertices),1]);
-DisplayMesh(msh,[1,0,0],0.1)
+DisplayMesh(msh,[1,0,0],1)
 
-figure(); 
-msh = isosurface(res,1.5); 
-msh.vertices = msh.vertices.*repmat(crp.voxsz,[length(msh.vertices),1]);
-DisplayMesh(msh)
-% man = ReadNrrd('D:\Data\EECE_8395\0522c0001\structures\mandible.nrrd'); 
-% auto = man; 
-% auto.data = res; 
-% auto.data(auto.data(:)==2)=0; 
-% dice(res,man.data) 
+
+man = ReadNrrd('D:\Data\EECE_8395\0522c0001\structures\mandible.nrrd'); 
+auto = man; 
+auto.data = res; 
+auto.data(auto.data(:)==2)=0; 
+dice(auto.data,man.data(200:320,140:225,52:80)) 

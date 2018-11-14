@@ -24,8 +24,8 @@ if imshow==1
     image(255*img);
 end
 % Parameters in our Graph Cut
-sigma = 0.2;
-lambda = 0.1;
+sigma = 0.8;
+lambda = 0.05;
 
 Tree = zeros(r*c+2,1);
 Tree(r*c+1)=1; % s
@@ -73,6 +73,7 @@ for i=1:length(nodes)
 end
 % And perform the min-cut:
 iter=0;
+cap_change=[];
 while (1)
     iter=iter+1;
     disp(['iteration ' num2str(iter)])
@@ -89,6 +90,7 @@ while (1)
     Augment(P);
     
     Adoption()
+    cap_change=[cap_change CutCheck];
     
 end
 

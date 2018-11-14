@@ -1,19 +1,21 @@
 function Adoption
-global Parent Tree Active EdgeCaps Edges Edge_Lens r c Orphans Orphan_cnt PLengths
+global Parent Tree Active Edges Edge_Lens Orphans Orphan_cnt PLengths
 while Orphan_cnt
     p=Orphans(Orphan_cnt);
     Orphan_cnt=Orphan_cnt-1;
-    neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
+    
+    neibs=[Edges(p,1:Edge_Lens(p)) length(Edge_Lens)+1 length(Edge_Lens)+2];
+    % sort neibs according to PLengths
+    [~,ind]=sort(PLengths(neibs));
+    neibs=neibs(ind);
     for i=1:length(neibs)
-        % modify Plengths
         q=neibs(i);
-        
         % check if path to tree exists
         current_node=q;
         while Parent(current_node)~=0
             current_node=Parent(current_node);
         end
-        if current_node>r*c
+        if current_node>length(Edge_Lens)
             path2tree=1;
         else
             path2tree=0;
@@ -23,17 +25,15 @@ while Orphan_cnt
         cap=EdgeFunc(p,q);
         
         if Tree(p)==Tree(q) && cap>0 && path2tree
-%             if ~(Parent(p)~=0 && PLengths(p)<PLengths(q)+1)&&Parent(q)==Parent(p)
                 Parent(p)=q;
-                PLengths(p)=Parent(q)+1;
+                PLengths(p)=PLengths(q)+1;
                 break
-%             end
             % Active() state of p remains unchanged
         end
         
     end
     if Parent(p)==0 % no valid neighbours
-        neibs=[Edges(p,1:Edge_Lens(p)) r*c+1 r*c+2];
+        neibs=[Edges(p,1:Edge_Lens(p)) length(Edge_Lens)+1 length(Edge_Lens)+2];
         for i=1:length(neibs)
             q=neibs(i);
             if Parent(q)==p
@@ -43,7 +43,7 @@ while Orphan_cnt
                 PLengths(q)=0;
             end
             
-            if EdgeFunc(p,q)>0  && Tree(q)~=0 && ~Active(q) 
+            if EdgeFunc(p,q)>0  && Tree(q)~=0 
                 FIFOInsert(q)
                 Active(q)=1;
             end
