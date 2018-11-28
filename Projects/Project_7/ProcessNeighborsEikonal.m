@@ -1,6 +1,6 @@
 function ProcessNeighborsEikonal(node,dmapi,mode)
-global Edgs Active dmap
-neibs=Edgs(node,:);
+global Edges Active dmap
+neibs=Edges(node,:);
 neibs=neibs(neibs~=0); % take nonzero neighbors
 if mode==1
     neibs=neibs(dmapi(neibs)<0); %foreground
@@ -8,16 +8,15 @@ end
 if mode==-1
     neibs=neibs(dmapi(neibs)>0); %background
 end
-% check for Active 0
-% Active 2??
 for i=1:length(neibs)
-    if Active(neibs(i))==2
-        Active(neibs(i))=1;
+    if Active(neibs(i))
+        dist=dist_calc(neibs(i));
+
+        if dmap(neibs(i))>dist
+            dmap(neibs(i))=dist;
+            HeapInsert(neibs(i),dist) % check
+        end
+%         Active(neibs(i))=2;
     end
-    dist=dist_calc(neibs(i),mode);
-%     if ~isempty(dist)
-%         dmap(neibs(i))=dist;
-%     end
-    HeapInsert(neibs(i),dist) % check
 end
 
