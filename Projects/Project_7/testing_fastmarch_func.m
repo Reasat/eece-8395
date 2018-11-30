@@ -13,11 +13,7 @@ end
 figure(1);clf; colormap(gray(256));
 image(20*(img(:,:,ceil(d/2))+rad));
 hold on;
-contour(img(:,:,ceil(d/2)),[0,0],'r');
-
-dmap = FastMarch(img,200,0,[]);
-mean(abs(dmap(:)-img(:)))
-max(abs(dmap(:)-img(:)))
+contour(img(:,:,ceil(d/2)),[0,0],'r'); 
 
 figure(3); clf;
 colormap(gray(256));
