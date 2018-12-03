@@ -2,7 +2,7 @@ clear all
 close all
 clc
 global r c Edges
-%% Curve2 does not work
+
 sigma = 1;
 maxiter = 200;
 mindist=2.1;
@@ -150,14 +150,13 @@ while iter<maxiter
     nbspeed.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nbspeed.len = size(nbspeed.q,2);
     [kappa,ngrad,grad] = Curvature2(dmap,nbspeed);
-    node = nbspeed.q(1,1:nbspeed.len) + (nbspeed.q(2,1:nbspeed.len)-1)*r ;
+    node = nbspeed.q(1,1:nbspeed.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
     dt = 0.5/max(abs(speedc(:)));
     dmap(node) = dmap(node) + dt*speedc;
     
     figure(4); clf; colormap(gray(256))
     curvature = zeros(size(dmap));
-%     curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);
     curvature(node)=kappa;
     image(curvature*500+127);
     title('curvature');

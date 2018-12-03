@@ -9,7 +9,7 @@ if mode==-1
     neibs=neibs(dmapi(neibs)>0); %background
 end
 for i=1:length(neibs)
-    if Active(neibs(i))
+    if Active(neibs(i))==1
         dist=dist_calc(neibs(i));
 
         if dmap(neibs(i))>dist

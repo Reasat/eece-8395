@@ -3,47 +3,50 @@ close all
 clc
 global r c Edges
 
-sigma = 1;
-maxiter = 200;
+sigma = 2;
+mu = .9;
+maxiter = 100;
 mindist=2.1;
-gamma=0.85;
+gamma=0.1;
 noise = 0;
 
-r=50; c=50; d=1;
-slc = r*c;
-img = zeros(r,c,d);
-img(15:35,15:35) = 1;
-img(21:25,10:20) = 0;
-img(10:14,25:27) = 1;
-rng('default');
-img = img + noise*randn(size(img));
-figure(1); clf; colormap(gray(256));
-image(255*img);
-title('ground truth');
+C = imread('peppers.png');
+C=imresize(C,[50,50]);
+figure(6);
+image(C)
 
-img = .5 - img;
-g = fspecial('gaussian',[5,5],sigma);
-imgblur = conv2(img,g,'same');
+HSV = rgb2hsv(C);
+H = HSV(:,:,1);
+figure(7);colormap(gray(256))
+image(H*255)
+
+% purpl = mean(mean(HSV(30:60,60:90,1)));
+purpl = mean(mean(HSV(40:50,20:25,1)));
+H = H + (1-purpl)/2;
+H(H(:)>1) = H(H(:)>1)-1;
+image(H*255)
+
+dmap = 0.5-(H<.5);
+
+r=size(H,1); c=size(H,2); d=1;
+slc = r*c;
 
 [Y,X]  = meshgrid(1:c,1:r);
 Y = Y(:);
 X = X(:);
 Edges =[Y<c,Y>1,X<r,X>1].*(repmat([1:r*c]',[1,4]) +repmat([r,-r,1,-1],[r*c,1]));
 
-grad = Gradient(imgblur,1:r*c*d);
+grad = Gradient(H,1:r*c*d);
 ngrad = reshape(sum(grad.*grad),[r,c]);
 speed = exp(-ngrad/(.08));
 figure(2); clf; colormap(gray(256));
 image(speed*1000);
 hold on;
 title('speed');
-quiver(reshape(grad(2,:),[r,c]),reshape(grad(1,:),[r,c]),'g')
-
+% quiver(reshape(grad(1,:),[r,c]),reshape(grad(2,:),[r,c]),'g')
 gradspeed = Gradient(speed,1:r*c*d);
-quiver(reshape(gradspeed(2,:),[r,c]),reshape(gradspeed(1,:),[r,c]),'r')
+gradspeed = GVF(gradspeed,mu,[r,c]);
 
-dmap = ones(size(img));
-dmap(20:30,24:32)=-1;
 iter = 0;
 nb = [];
 
@@ -51,7 +54,7 @@ while iter<maxiter
     iter = iter+1;
     figure(2);clf; colormap(gray(256))
     hold off
-    image(speed*200);
+    image(speed*1000);
     hold on;
     contour(dmap,[0,0],'r');
     title('speed');
@@ -77,7 +80,7 @@ while iter<maxiter
     drawnow;
     
     node=nb.q(1,1:nb.len);
-%     speedc = -speed(node).*(ngrad).*(kappa+gamma) +sum(grad(:,node).*gradspeed(:,node));
+    %speedc = -speed(node).*(ngrad).*(kappa+gamma) +sum(grad(:,node).*gradspeed(:,node));
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
     dt = 1/max(abs(speedc(:)));
     dmap(nb.q(1,1:nb.len)) = dmap(nb.q(1,1:nb.len)) + dt*speedc;
@@ -90,7 +93,8 @@ image(speed*1000);
 title('speed');
 hold on;
 contour(dmap,[0,0],'r');
-figure(1);clf; colormap(gray(256))
+figure(1);clf; 
+image(C)
 hold on;
 contour(dmap,[0,0],'r');
 title('distance map');
