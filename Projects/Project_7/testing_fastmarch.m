@@ -106,5 +106,5 @@ image(abs(dmapout(:,:,ceil(d/2))-img(:,:,ceil(d/2)))*500)
 hold on;
 contour(dmapout(:,:,ceil(d/2)),[0,0],'r');
 
-mean(abs(dmapout(:)-img(:)));
-max(abs(dmapout(:)-img(:)));
+mean(abs(dmapout(:)-img(:)))
+max(abs(dmapout(:)-img(:)))

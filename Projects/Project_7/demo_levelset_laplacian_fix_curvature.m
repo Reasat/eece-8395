@@ -2,7 +2,7 @@ clear all
 close all
 clc
 global r c Edges
-%% doesn't work if you initialize too far away
+%% Curve2 does not work
 sigma = 1;
 maxiter = 200;
 mindist=2.1;
@@ -110,7 +110,7 @@ A = sparse(rws,cols,s,slc,slc);
 x = A\bx;
 y = A\by;
 % Let’s compare our estimated gradient vector field with the original input.
-ngradspeed = [x';y'];
+ngradspeed = [x';y';zeros(1,length(x))];
 figure(2); clf; colormap(gray(256));
 image(speed*1000);
 hold on;
@@ -122,11 +122,9 @@ quiver(floor((q(1,:)-1)/r)+1,mod(q(1,:)-1,r)+1,(gradspeed(1,:)),(gradspeed(2,:))
 dmap = ones(size(img));
 % dmap(20:30,24:32)=-1;
 % dmap(13:38,13:38)=-1;
-% dmap(20:30,24:32)=-1;
-dmap(25:45,5:45)=-1;
-
+dmap(20:30,24:32)=-1;
 gradspeed = ngradspeed(1:2,:);
-gamma=.1;
+gamma=.3;
 
 iter = 0;
 nb = [];
@@ -149,22 +147,21 @@ while iter<maxiter
     contour(dmap,[0,0],'r');
     title(['distance map iter=',num2str(iter)])
     drawnow;
-    nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
-    nb.len = nbin.len+nbout.len;
+    nbspeed.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
+    nbspeed.len = size(nbspeed.q,2);
+    [kappa,ngrad,grad] = Curvature2(dmap,nbspeed);
+    node = nbspeed.q(1,1:nbspeed.len) + (nbspeed.q(2,1:nbspeed.len)-1)*r ;
+    speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
+    dt = 0.5/max(abs(speedc(:)));
+    dmap(node) = dmap(node) + dt*speedc;
     
-    [kappa,ngrad,grad] = Curvature(dmap,nb);
     figure(4); clf; colormap(gray(256))
     curvature = zeros(size(dmap));
-    curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);
+%     curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);
+    curvature(node)=kappa;
     image(curvature*500+127);
     title('curvature');
-    drawnow;
-    
-    node=nb.q(1,1:nb.len);
-    %speedc = -speed(node).*(ngrad).*(kappa+gamma) +sum(grad(:,node).*gradspeed(:,node));
-    speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
-    dt = 1/max(abs(speedc(:)));
-    dmap(nb.q(1,1:nb.len)) = dmap(nb.q(1,1:nb.len)) + dt*speedc;
+    drawnow;   
 end
 
 [dmap,nbin,nbout] = FastMarch(dmap,mindist,1,nb);
