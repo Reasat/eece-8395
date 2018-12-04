@@ -47,7 +47,9 @@ hold on;
 quiver(reshape(gradspeed(2,:),[r,c]),reshape(gradspeed(1,:),[r,c]))
 
 dmap = ones(size(img));
-dmap(20:30,24:32)=-1;
+% dmap(20:30,24:32)=-1;
+dmap(25:45,5:45)=-1;
+
 iter = 0;
 nb = [];
 

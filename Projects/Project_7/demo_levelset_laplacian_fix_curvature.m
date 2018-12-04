@@ -122,7 +122,9 @@ quiver(floor((q(1,:)-1)/r)+1,mod(q(1,:)-1,r)+1,(gradspeed(1,:)),(gradspeed(2,:))
 dmap = ones(size(img));
 % dmap(20:30,24:32)=-1;
 % dmap(13:38,13:38)=-1;
-dmap(20:30,24:32)=-1;
+% dmap(20:30,24:32)=-1;
+dmap(25:45,5:45)=-1;
+
 gradspeed = ngradspeed(1:2,:);
 gamma=.3;
 
@@ -147,10 +149,10 @@ while iter<maxiter
     contour(dmap,[0,0],'r');
     title(['distance map iter=',num2str(iter)])
     drawnow;
-    nbspeed.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
-    nbspeed.len = size(nbspeed.q,2);
-    [kappa,ngrad,grad] = Curvature2(dmap,nbspeed);
-    node = nbspeed.q(1,1:nbspeed.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
+    nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
+    nb.len = size(nb.q,2);
+    [kappa,ngrad,grad] = Curvature2(dmap,nb);
+    node = nb.q(1,1:nb.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
     dt = 0.5/max(abs(speedc(:)));
     dmap(node) = dmap(node) + dt*speedc;

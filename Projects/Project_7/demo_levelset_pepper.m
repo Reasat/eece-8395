@@ -2,16 +2,17 @@ clear all
 close all
 clc
 global r c Edges
-
+tic
 sigma = 2;
 mu = .9;
-maxiter = 100;
+maxiter = 30;
 mindist=2.1;
-gamma=0.1;
+gamma=0;
 noise = 0;
+draw_states=0;
 
 C = imread('peppers.png');
-C=imresize(C,[50,50]);
+C=imresize(C,[300,300]);
 figure(6);
 image(C)
 
@@ -21,7 +22,7 @@ figure(7);colormap(gray(256))
 image(H*255)
 
 % purpl = mean(mean(HSV(30:60,60:90,1)));
-purpl = mean(mean(HSV(40:50,20:25,1)));
+purpl = mean(mean(HSV(1:20,1:20,1)));
 H = H + (1-purpl)/2;
 H(H(:)>1) = H(H(:)>1)-1;
 image(H*255)
@@ -49,41 +50,43 @@ gradspeed = GVF(gradspeed,mu,[r,c]);
 
 iter = 0;
 nb = [];
-
 while iter<maxiter
-    iter = iter+1;
-    figure(2);clf; colormap(gray(256))
-    hold off
-    image(speed*1000);
-    hold on;
-    contour(dmap,[0,0],'r');
-    title('speed');
-    drawnow;
-    
+    iter = iter+1
+    if draw_states
+        figure(2);clf; colormap(gray(256))
+        hold off
+        image(speed*1000);
+        hold on;
+        contour(dmap,[0,0],'r');
+        title('speed');
+        drawnow;
+    end
     [dmap,nbin,nbout] = FastMarch(dmap,mindist,1,nb);
-    figure(3);clf; colormap(gray(256))
-    hold off;
-    image(dmap*10+127);
-    hold on;
-    contour(dmap,[0,0],'r');
-    title(['distance map iter=',num2str(iter)])
-    drawnow;
+    if draw_states
+        figure(3);clf; colormap(gray(256))
+        hold off;
+        image(dmap*10+127);
+        hold on;
+        contour(dmap,[0,0],'r');
+        title(['distance map iter=',num2str(iter)])
+        drawnow;
+    end
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
-    nb.len = nbin.len+nbout.len;
-    
-    [kappa,ngrad,grad] = Curvature(dmap,nb);
-    figure(4); clf; colormap(gray(256))
-    curvature = zeros(size(dmap));
-    curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);
-    image(curvature*500+127);
-    title('curvature');
-    drawnow;
-    
-    node=nb.q(1,1:nb.len);
-    %speedc = -speed(node).*(ngrad).*(kappa+gamma) +sum(grad(:,node).*gradspeed(:,node));
+    nb.len = size(nb.q,2);
+    [kappa,ngrad,grad] = Curvature2(dmap,nb);
+    node = nb.q(1,1:nb.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
-    dt = 1/max(abs(speedc(:)));
-    dmap(nb.q(1,1:nb.len)) = dmap(nb.q(1,1:nb.len)) + dt*speedc;
+    dt = 0.5/max(abs(speedc(:)));
+    dmap(node) = dmap(node) + dt*speedc;
+    
+    if draw_states
+        figure(4); clf; colormap(gray(256))
+        curvature = zeros(size(dmap));
+        curvature(node)=kappa;
+        image(curvature*500+127);
+        title('curvature');
+        drawnow;
+    end
 end
 
 [dmap,nbin,nbout] = FastMarch(dmap,mindist,1,nb);
@@ -98,3 +101,4 @@ image(C)
 hold on;
 contour(dmap,[0,0],'r');
 title('distance map');
+toc

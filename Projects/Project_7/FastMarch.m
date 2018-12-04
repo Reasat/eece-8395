@@ -1,24 +1,17 @@
 function [dmapout,nbin,nbout]=FastMarch(img,maxdist,getnb,nbi)
 
-global r c dmap Active Edges dmapi heap
+global r c dmap Active dmapi heap
 [r,c]=size(img);
-if nargin<4 || isempty(nbi)
-    nbi.q = 1:r*c;
-    nbi.len = length(nbi.q);
-end
-
 d=1;
 heap = HeapInit(10000);
-% [Y,X]  = meshgrid(1:c,1:r);
-% Y = Y(:);
-% X = X(:);
-% Edges =[Y<c,Y>1,X<r,X>1].*(repmat([1:r*c]',[1,4]) +repmat([r,-r,1,-1],[r*c,1]));
-
 dmapi=img;
 dmap = 3e8*ones(r,c,d);
 dmap(dmapi(:)==0)=0;
 Active = ones(r,c);
-
+if nargin<4 || isempty(nbi)
+    nbi.q = [1:r*c; dmap(:)'];
+    nbi.len = length(nbi.q);
+end
 InsertBorderVoxelsIntoHeap(dmapi,1,nbi)
 if getnb
     nb.q = zeros(2,r*c*d);
