@@ -1,9 +1,9 @@
 function [dmapout,nbin,nbout]=FastMarch(img,maxdist,getnb,nbi)
 
-global r c dmap Active dmapi heap
+global dmap Active dmapi heap 
 [r,c]=size(img);
 d=1;
-heap = HeapInit(10000);
+heap = HeapInit2(10000);
 dmapi=img;
 dmap = 3e8*ones(r,c,d);
 dmap(dmapi(:)==0)=0;
@@ -17,7 +17,7 @@ if getnb
     nb.q = zeros(2,r*c*d);
     nb.len=0;
 end
-[node,dist]=HeapPop;
+[node,dist]=HeapPop2;
 while ~isempty(node) && dist<maxdist
     if getnb
         nb.len = nb.len+1;
@@ -25,9 +25,9 @@ while ~isempty(node) && dist<maxdist
     end
     Active(node)=0;
     ProcessNeighborsEikonal(node,dmapi,1)
-    [node,dist] = HeapPop();
+    [node,dist] = HeapPop2();
     while (~isempty(node))&&Active(node)==0
-        [node,dist] = HeapPop();
+        [node,dist] = HeapPop2();
     end
 end
 
@@ -43,7 +43,7 @@ if getnb
     nbin = nb;
     nb.len=0;
 end
-[node,dist] = HeapPop();
+[node,dist] = HeapPop2();
 
 while ~isempty(node) && dist<maxdist
     if getnb
@@ -53,9 +53,9 @@ while ~isempty(node) && dist<maxdist
     Active(node)=0;
     ProcessNeighborsEikonal(node,dmapi,-1);
     
-    [node,dist] = HeapPop();
+    [node,dist] = HeapPop2();
     while (~isempty(node))&&Active(node)==0
-        [node,dist] = HeapPop();
+        [node,dist] = HeapPop2();
     end
 end
 %Then we combine the two results into our output distance map:

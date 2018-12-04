@@ -8,8 +8,8 @@ global dmap Active Edges
 % nodes=nbi.q(1,node_signs==mode*-1);
 if nargin<3 || isempty(nbi)
     nbi=struct;
-    nbi.len=length(Active);
-    nbi.q=1:length(Active);
+    nbi.len=length(Active(:));
+    nbi.q=1:length(Active(:));
 end
 if mode==1
     nodes =find(dmapi(:)<0); %foreground pixels
@@ -82,7 +82,7 @@ for i_nodes=1:length(nodes)
                 
                 dist=sqrt((1/x^2+1/y^2)^-1);
                 dmap(node)=dist;
-                HeapInsert(node,dist);
+                HeapInsert2(node,dist);
                 Active(node)=2;
             end
         end

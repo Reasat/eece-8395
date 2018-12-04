@@ -14,7 +14,7 @@ for i=1:length(neibs)
 
         if dmap(neibs(i))>dist
             dmap(neibs(i))=dist;
-            HeapInsert(neibs(i),dist) % check
+            HeapInsert2(neibs(i),dist) % check
         end
 %         Active(neibs(i))=2;
     end

@@ -5,14 +5,14 @@ global r c Edges
 tic
 sigma = 2;
 mu = .9;
-maxiter = 30;
+maxiter = 300;
 mindist=2.1;
 gamma=0;
 noise = 0;
 draw_states=0;
 
 C = imread('peppers.png');
-C=imresize(C,[300,300]);
+% C=imresize(C,[100,100]);
 figure(6);
 image(C)
 
@@ -21,8 +21,8 @@ H = HSV(:,:,1);
 figure(7);colormap(gray(256))
 image(H*255)
 
-% purpl = mean(mean(HSV(30:60,60:90,1)));
-purpl = mean(mean(HSV(1:20,1:20,1)));
+purpl = mean(mean(HSV(30:60,60:90,1)));
+% purpl = mean(mean(HSV(1:20,1:20,1)));
 H = H + (1-purpl)/2;
 H(H(:)>1) = H(H(:)>1)-1;
 image(H*255)
@@ -73,6 +73,7 @@ while iter<maxiter
     end
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nb.len = size(nb.q,2);
+    
     [kappa,ngrad,grad] = Curvature2(dmap,nb);
     node = nb.q(1,1:nb.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));

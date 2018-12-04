@@ -79,7 +79,7 @@ while ~isempty(node)
     
     [node,dist] = HeapPop2();
     while (~isempty(node))&&Active(node)==0
-        [node,dist] = HeapPop2();
+        [node,dist] = HeapPop();
     end
     
 end
