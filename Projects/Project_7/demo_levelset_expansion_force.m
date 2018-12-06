@@ -63,7 +63,7 @@ while iter<maxiter
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nb.len = nbin.len+nbout.len;
     
-    [kappa,ngrad,grad] = Curvature(dmap,nb);
+    [kappa,ngrad,grad] = Curvature_mmrk(dmap,nb);
     figure(4); clf; colormap(gray(256))
     curvature = zeros(size(dmap));
     curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);

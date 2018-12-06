@@ -73,7 +73,8 @@ while iter<maxiter
         title(['distance map iter=',num2str(iter)])
         drawnow;
     end
-    nbspeed.q = nb.q(:,nb.q(2,1:nb.len)<=1);
+    [~,nbin,nbout] = FastMarch(dmap,1.1,1,nb);
+    nbspeed.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nbspeed.len = size(nbspeed.q,2);
     
     [kappa,ngrad,grad] = Curvature2(dmap,nbspeed);

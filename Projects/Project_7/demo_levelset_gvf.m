@@ -5,7 +5,7 @@ tic
 global r c Edges
 sigma = 1;
 mu = .9;
-maxiter = 30;
+maxiter = 200;
 mindist=2.1;
 gamma=0.1;
 noise = 0;
@@ -85,8 +85,12 @@ while iter<maxiter
     
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nb.len = size(nb.q,2);
-    [kappa,ngrad,grad] = Curvature2(dmap,nb);
-    node = nb.q(1,1:nb.len); %+ (nbspeed.q(2,1:nbspeed.len)-1)*r ;
+    
+    nbspeed.q = nb.q(:,nb.q(2,1:nb.len)<=1);
+    nbspeed.len = size(nbspeed.q,2);
+    
+    [kappa,ngrad,grad] = Curvature2(dmap,nbspeed);
+    node = nbspeed.q(1,1:nbspeed.len); 
     speedc=-speed(node).*(max(ngrad,0.001)).*(kappa+gamma) + sum(grad.*gradspeed(:,node));
     dt = 0.5/max(abs(speedc(:)));
     dmap(node) = dmap(node) + dt*speedc;

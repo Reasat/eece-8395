@@ -24,16 +24,20 @@ image(20*(img(:,:,ceil(d/2))+rad));
 hold on;
 contour(img(:,:,ceil(d/2)),[0,0],'r'); 
 tic
-[dmap,nbin,nbout]=FastMarch(img,2.1,1,[]);
+[dmap,nbin,nbout]=FastMarch(img,3e8,1,[]);
 toc
-% mean(abs(dmap(:)-img(:)))
-% max(abs(dmap(:)-img(:)))
-nbn = nbin;
-nbn.q(:,nbn.len+1:nbout.len+nbn.len) = nbout.q(:,1:nbout.len);
-nbn.len = nbn.len+nbout.len;
-tic
-[dmap,nbin,nbout]=FastMarch(img,2.1,1,nbn);
-toc
+figure(5); clf;
+colormap(gray(256));
+image(abs(dmap(:,:,ceil(d/2))-img(:,:,ceil(d/2)))*500)
+hold on;
+mean(abs(dmap(:)-img(:)))
+max(abs(dmap(:)-img(:)))
+% nbn = nbin;
+% nbn.q(:,nbn.len+1:nbout.len+nbn.len) = nbout.q(:,1:nbout.len);
+% nbn.len = nbn.len+nbout.len;
+% tic
+% [dmap,nbin,nbout]=FastMarch(img,2.1,1,nbn);
+% toc
 % figure(3); clf;
 % colormap(gray(256));
 % image((dmap(:,:,ceil(d/2))+rad)*20)

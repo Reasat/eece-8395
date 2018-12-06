@@ -95,10 +95,8 @@ contour(dmapout(:,:,ceil(d/2)),[0,0],'r');
 
 figure(5); clf;
 colormap(gray(256));
-diff_abs=abs(dmapout(:,:,ceil(d/2))-img(:,:,ceil(d/2)));
 image(abs(dmapout(:,:,ceil(d/2))-img(:,:,ceil(d/2)))*500)
 hold on;
 contour(dmapout(:,:,ceil(d/2)),[0,0],'r');
-
 mean(abs(dmapout(:)-img(:)))
 max(abs(dmapout(:)-img(:)))

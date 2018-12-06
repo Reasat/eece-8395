@@ -11,6 +11,6 @@ for i_nodes = 1: length(nodes)
     kappa_node=(grad_node' * hess * grad_node - ngrad_node^2 * trace(hess))/(2*ngrad_node^3);
     kappa=[kappa kappa_node];
     grad=[grad grad_node];
-    ngrad=[ngrad ngrad_node^2];
+    ngrad=[ngrad ngrad_node];
 end
 
