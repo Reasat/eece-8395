@@ -27,12 +27,22 @@ end
 if U==0
     dderiv_y=img(D)-2*img(node)+img(node);
 end
-
-%% erroneous boundary conditions
-RU=max(1,R-1);
-LU=max(1,L-1);
-RD=min(R+1,r*c);
-LD=min(L+1,r*c);
+RU=R-1;
+if RU<0
+    RU=node;
+end
+LU=L-1;
+if LU<0
+    LU=node;
+end
+RD=R+1;
+if RD>r*c
+    RD=node;
+end
+LD=L+1;
+if LD>r*c
+    LD=node;
+end
 
 dderiv_xy=1/4*(RD-RU-LD+LU);
 

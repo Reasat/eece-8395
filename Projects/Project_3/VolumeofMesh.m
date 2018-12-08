@@ -1,4 +1,5 @@
 function V=VolumeofMesh(O)
+% calculates volume of a mesh
 V=0;
 for i=1:length(O.faces)
     v1=O.vertices(O.faces(i,1),:);
@@ -13,3 +14,4 @@ for i=1:length(O.faces)
     +v1(1)*v2(2)*v3(3))/6;
 end
 V=abs(V);
+end

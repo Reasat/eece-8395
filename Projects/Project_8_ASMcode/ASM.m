@@ -55,11 +55,11 @@ pca = createshapemodel(d,w);
 % end
 % 
 % 
-% % our errors when fitting the model to the training data should be 0
-% for i=1:10
-%     x = fit(pca,d(:,i));
-%     max(abs(x-d(:,i)))
-% end
+% our errors when fitting the model to the training data should be 0
+for i=1:10
+    x = fit(pca,d(:,i));
+    max(abs(x-d(:,i)))
+end
 % 
 %loading in a new target image to segment
 im = ReadNrrd([dir_data '\0522c0147\img.nrrd']);

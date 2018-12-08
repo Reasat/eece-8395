@@ -1,5 +1,5 @@
 function dist=Points2TriangleDistance(vertices, face,points)
-
+% calculates minimum distance of all points from a single triangular surface
 q1=vertices(face(1),:)';
 q2=vertices(face(2),:)';
 q3=vertices(face(3),:)';
@@ -8,11 +8,10 @@ V=[v1 v2];
 coeff=V\(points'-q1);
 dist_vect=points'-(q1+V*coeff);
 dist=vecnorm(dist_vect);
-
-[m,~]=size(points);
-ind_rem=setdiff(1:m,find(coeff(1,:)>=0 & coeff(2,:)>=0 & sum(coeff)<=1));
+ind_rem=~(coeff(1,:)>=0 & coeff(2,:)>=0 & sum(coeff)<=1);
 points_rem=points(ind_rem,:);
 v3=q3-q2;
+
 d=v1'*(points_rem'-q1)/vecnorm(v1)^2;
 d(d>1)=1; d(d<0)=0;
 e=v2'*(points_rem'-q1)/vecnorm(v2)^2;
@@ -25,3 +24,5 @@ d2=vecnorm(points_rem'-(q1+v2*e));
 d3=vecnorm(points_rem'-(q2+v3*f));
 d_vect=[d1;d2;d3];
 dist(ind_rem)=min(d_vect);
+end
+

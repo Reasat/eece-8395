@@ -8,7 +8,9 @@ midcontour = 0;
 global done
 done=0;
 
-img=ReadNrrd('D:\Data\EECE_8395\0522c0001\img.nrrd');
+% img=ReadNrrd('D:\Data\EECE_8395\0522c0001\img.nrrd');
+img = ReadNrrd('C:\Users\greas\Box\Vanderbilt_Vivobook_Windows\EECE_8395\EECE_395\0522c0001\img.nrrd');
+
 slcim = img;
 fp = [260,150,70];
 sp = [320,220,107];

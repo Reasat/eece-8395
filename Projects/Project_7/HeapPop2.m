@@ -1,13 +1,16 @@
 function [root_node, root_value]=HeapPop2()
 global heap
 
+if heap.len==0
+    root_node=[];
+    root_value=[];
+    return
+end
 root_node=heap.q(1,1);
 root_value=heap.q(2,1);
 last_element=heap.q(:,heap.len);
 heap.len=heap.len-1;
 if heap.len==0
-    root_node=[];
-    root_value=[];
     return
 end
 

@@ -3,5 +3,6 @@ if nargin<1
     initlen=1000;
 end
 heap=struct;
-heap.q=zeros(2,initlen);
+heap.q=zeros(3,initlen);
+% heap.q(2,:)=1000;
 heap.len=sum(heap.q(1,:)>0);

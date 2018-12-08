@@ -43,6 +43,18 @@ else
     ylabel('z');
     z = 'x';
 end
+%%
+if isfield(inp,'cntrs')
+    hold on
+    j=1;
+    c = inp.cntrs(:,:,inp.slc);
+    while j<length(c) && c(2,j)>0
+        len = c(2,j);
+        plot(c(1,j+1:j+len),c(2,j+1:j+len),'r');
+        j = j+len+1;
+    end
+end
+%%
 title(['Slice ',z,' = ',num2str(inp.slc)]);
 if isfield(inp,'cntrs')
     hold on
