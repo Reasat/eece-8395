@@ -1,4 +1,3 @@
-
 function [mn1,mn2,mx1,mx2]=SurfaceDistance(gts,t1s)
 % calculates mean surface distance
 show_eta=1;
