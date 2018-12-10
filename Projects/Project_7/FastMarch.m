@@ -1,5 +1,4 @@
 function [dmapout,nbin,nbout]=FastMarch(img,maxdist,getnb,nbi)
-
 global dmap Active dmapi heap 
 [r,c]=size(img);
 d=1;

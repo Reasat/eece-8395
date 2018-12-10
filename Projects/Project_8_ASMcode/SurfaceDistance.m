@@ -1,4 +1,3 @@
-
 function [mn1,mn2,mx1,mx2]=SurfaceDistance(gts,t1s)
 % calculates mean surface distance
 show_eta=1;
@@ -24,9 +23,9 @@ for i=1:length(gts.faces)
     elapsed=toc;
     dist_t12gt_min(dist_t12gt_min>dist)=dist(dist_t12gt_min>dist);
     if show_eta
-%     if mod(i,500)==0
-%         disp(['backward pass eta: ',num2str(elapsed/i*(length(gts.faces)-i)/60) ' minutes'])
-%     end
+        if mod(i,500)==0
+            disp(['backward pass eta: ',num2str(elapsed/i*(length(gts.faces)-i)/60) ' minutes'])
+        end
     end
 end
 mn1=mean(dist_gt2t1_min);

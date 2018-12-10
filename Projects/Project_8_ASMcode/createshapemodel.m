@@ -15,7 +15,6 @@ for i=1:size(eig_vec,2)
     U(:,i)=V*eig_vec(:,i);
     U(:,i)=U(:,i)/norm(U(:,i));
 end
-% wtw=(w'*w);
 
 phi=(U'*(w'*w)*U)\(U'*(w'*w));
 pca=struct;

@@ -7,6 +7,8 @@ sigma = 1;
 maxiter = 200;
 mindist=2.1;
 gamma=0.35;
+errthrsh = 0.01;
+
 r=50; c=50; d=1;
 slc = r*c;
 img = zeros(r,c,d);
@@ -53,6 +55,15 @@ while iter<maxiter
     drawnow;
     
     [dmap,nbin,nbout] = FastMarch(dmap,mindist,1,nb);
+    if iter>1
+        err = sum(abs(-dmap(nbinold.q(1,1:nbinold.len))-nbinold.q(2,1:nbinold.len)))+...
+            sum(abs(dmap(nboutold.q(1,1:nboutold.len))-nboutold.q(2,1:nboutold.len)))
+        if err<errthrsh
+            break;
+        end
+    end
+    nboutold = nbout;
+    nbinold = nbin;
     figure(3);clf; colormap(gray(256))
     hold off;
     image(dmap*10+127);
@@ -63,7 +74,7 @@ while iter<maxiter
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nb.len = nbin.len+nbout.len;
     
-    [kappa,ngrad,grad] = Curvature_mmrk(dmap,nb);
+    [kappa,ngrad,grad] = Curvature(dmap,nb);
     figure(4); clf; colormap(gray(256))
     curvature = zeros(size(dmap));
     curvature(nb.q(1,(nb.q(2,1:nb.len)<=1))) = kappa(nb.q(2,1:nb.len)<=1);

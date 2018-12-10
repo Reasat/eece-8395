@@ -5,7 +5,7 @@ tic
 global r c Edges
 sigma = 1;
 mu = .9;
-maxiter = 300;
+maxiter = 200;
 mindist=2.1;
 gamma=0.1;
 errthrsh = 0.01;
@@ -74,7 +74,7 @@ while iter<maxiter
     
     if iter>1
         err = sum(abs(-dmap(nbinold.q(1,1:nbinold.len))-nbinold.q(2,1:nbinold.len)))+...
-            sum(abs(dmap(nboutold.q(1,1:nboutold.len))-nboutold.q(2,1:nboutold.len)))
+            sum(abs(dmap(nboutold.q(1,1:nboutold.len))-nboutold.q(2,1:nboutold.len)));
         if err<errthrsh
             break;
         end

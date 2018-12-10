@@ -1,11 +1,5 @@
 function InsertBorderVoxelsIntoHeap(dmapi,mode,nbi)
 global dmap Active Edges 
-% if nargin<3
-%     nbi.q=1:r*c;
-%     nbi.len=r*c;
-% end
-% node_signs=sign(dmapi(nbi.q(1,1:nbi.len)));
-% nodes=nbi.q(1,node_signs==mode*-1);
 if nargin<3 || isempty(nbi)
     nbi=struct;
     nbi.len=length(Active(:));
@@ -49,7 +43,7 @@ for i_nodes=1:length(nodes)
                 else
                     U=0;
                 end
-                %% calculate distance form neighbours
+                %% calculate distance from neighbours
                 %% LR
                 if L==0 && R
                     x=abs(node_dist)/(abs(dmapi(R))+abs(node_dist));

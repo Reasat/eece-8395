@@ -8,6 +8,7 @@ mu = .9;
 maxiter = 30;
 mindist=2.1;
 gamma=0;
+errthrsh=0.01;
 noise = 0;
 draw_states=1;
 
@@ -51,7 +52,7 @@ gradspeed = GVF(gradspeed,mu,[r,c]);
 iter = 0;
 nb = [];
 while iter<maxiter
-    iter = iter+1
+    iter = iter+1;
     if draw_states
         figure(2);clf; colormap(gray(256))
         hold off
@@ -62,6 +63,15 @@ while iter<maxiter
         drawnow;
     end
     [dmap,nbin,nbout] = FastMarch(dmap,mindist,1,nb);
+    if iter>1
+        err = sum(abs(-dmap(nbinold.q(1,1:nbinold.len))-nbinold.q(2,1:nbinold.len)))+...
+            sum(abs(dmap(nboutold.q(1,1:nboutold.len))-nboutold.q(2,1:nboutold.len)))
+        if err<errthrsh
+            break;
+        end
+    end
+    nboutold = nbout;
+    nbinold = nbin;
     nb.q = [nbin.q(:,1:nbin.len),nbout.q(:,1:nbout.len)];
     nb.len = size(nb.q,2);
     if draw_states
