@@ -7,9 +7,6 @@ background = 0;
 
 [numEdges,Edges] = VertexNeighbors(M);
 
-
-
-
 % Traverse graph
 % Iteratively mark a node as foreground then all of its 'rate'-connected
 % neighbors as background.

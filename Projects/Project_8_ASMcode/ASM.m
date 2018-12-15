@@ -66,6 +66,7 @@ im = ReadNrrd([dir_data '\0522c0147\img.nrrd']);
 msk = ReadNrrd([dir_data '\0522c0147\structures\mandible.nrrd']);
 gt = isosurface(msk.data,0);
 gt.vertices = gt.vertices.*repmat(msk.voxsz,[length(gt.vertices),1]);
+mandible=gt;
 msk = ReadNrrd([dir_data '\0522c0147\structures\submandibular_L.nrrd']);
 sm = isosurface(msk.data,0);
 sm.vertices = sm.vertices.*repmat(msk.voxsz,[length(sm.vertices),1]);
@@ -97,7 +98,24 @@ DisplayVolume();
 inp = guidata(gcf);
 inp.msh(2).vertices = shp;
 guidata(gcf,inp);
-
+w_sm=find(~w);
+sm_pred.vertices=shp(~w,:);
+face_count=0;
+f_sm=[];
+for j=1:length(f)
+    v1=f(j,1)==w_sm;
+    v2=f(j,2)==w_sm;
+    v3=f(j,3)==w_sm;
+    if sum(v1)>0 && sum(v2)>0 && sum(v3)>0
+        face_count=face_count+1;
+        v1_new=find(v1);
+        v2_new=find(v2);
+        v3_new=find(v3);        
+        f_sm(face_count,:)=[v1_new;v2_new;v3_new];
+    end
+end
+sm_pred.faces=f_sm;
+[mean_dist, max_dist]=mean_hausdorff(sm,sm_pred);
 return;
 
 %perform the asm search
@@ -283,11 +301,11 @@ global dir_data
 % instead of loading it from the file you can comment out the if-statement
 
 fid = fopen('d.mat','rb')
-if fid>0
-    fclose(fid);
-    load 'd.mat'
-    return;
-end
+% if fid>0
+%     fclose(fid);
+%     load 'd.mat'
+%     return;
+% end
 
 %loading training datasets
 nms(1,:) = [dir_data '\0522c0001'];
